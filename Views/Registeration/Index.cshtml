@@ -1,0 +1,116 @@
+﻿@model IEnumerable<SampleForm>
+
+@{
+    ViewData["Title"] = "List of samples";
+}
+
+<h2>
+    <i class="bi bi-list-columns-reverse"></i>
+    Our Data
+</h2>
+
+<hr />
+
+<a class="btn btn-primary" asp-action="Create">
+    <i class="bi bi-plus"></i>Add new form
+</a>
+<a class="btn btn-primary" asp-action="UploadFTP">
+    <i class="bi bi-plus"></i>UploadFTP
+</a>
+<a asp-action="ExportPDF" class="btn btn-info">
+    <i class="bi bi-activity"></i>
+    ExportPDF
+</a>
+<div class="mt-4">
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            No Data found!
+        </div>
+    }
+    else
+    {
+        <div class="row" id="details">
+            @foreach (var s in Model)
+            {
+                <div class="col-12">
+                    <div class="card mb-3">
+                        <div class="row no-gutters">
+                            <div class="col-md-2" style="background-image: url(data:image\/*;base64,@(Convert.ToBase64String(s.Photo))); background-size:100%;"></div>
+                            <div class="col-md-10">
+                                <div class="card-body d-flex flex-column justify-content-between h-100">
+                                    <div>
+                                        <p class="card-text text-justify">@(s.Description.Length > 500 ? $"{s.Description.Substring(0, 500)}..." : s.Description)</p>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-outline-primary">
+                                                <i class="bi bi-pencil"></i>
+                                                Edit
+                                            </a>
+                                            <a asp-action="Delete" class="btn btn-danger" asp-route-id="@s.Id">
+                                                <i class="bi bi-trash"></i>
+                                                Delete
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@* extracting this view using client side library "jspdf" *@
+
+@*<button onclick="javascript:demoFromHTML();">Generate PDF</button>
+
+@section Scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+    <script>
+        function demoFromHTML() {
+            var pdf = new jsPDF('p', 'pt', 'letter');
+            // source can be HTML-formatted string, or a reference
+            // to an actual DOM element from which the text will be scraped.
+            source = $('#details')[0];
+
+            // we support special element handlers. Register them with jQuery-style
+            // ID selector for either ID or node name. ("#iAmID", "div", "span" etc.)
+            // There is no support for any other type of selectors
+            // (class, of compound) at this time.
+            specialElementHandlers = {
+                // element with id of "bypass" - jQuery style selector
+                '#bypassme': function (element, renderer) {
+                    // true = "handled elsewhere, bypass text extraction"
+                    return true
+                }
+            };
+            margins = {
+                top: 80,
+                bottom: 60,
+                left: 40,
+                width: 522
+            };
+            // all coords and widths are in jsPDF instance's declared units
+            // 'inches' in this case
+            pdf.fromHTML(
+                source, // HTML string or DOM elem ref.
+                margins.left, // x coord
+                margins.top, { // y coord
+                'width': margins.width, // max width of content on PDF
+                'elementHandlers': specialElementHandlers
+            },
+
+                function (dispose) {
+                    // dispose: object with X, Y of the last line add to the PDF
+                    //          this allow the insertion of new lines after html
+                    pdf.save('Test.pdf');
+                }, margins);
+        }
+    </script>
+}*@
